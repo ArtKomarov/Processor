@@ -11,26 +11,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
-const int ARG_POISON = -99999;
-const char COMMENT_SYMB = '%';
-const char LABEL_SYMB = ':';
+typedef double ram_t;
+typedef double reg_t;
+typedef float  type_a;
 
 #define LABEL_NAME_SIZE 50
 #define MAX_COMM 100
 #define MAX_COMM_NAME 10
 #define PROC_RAM_SIZE 8096
 #define PROC_NUM_OF_REGS 4
+#define UNION_CHAR_CAP ((int)(sizeof(type_a)))
 
 /*#define IFCOM(comm, num)\
         if(strncmp(code, comm, strlen(comm)) == 0) {\
             return num;\
         }*/
-
-
-typedef double ram_t;
-typedef double reg_t;
-typedef double type;
 
 
 typedef struct Processor {
@@ -52,6 +49,17 @@ typedef struct CommArray {
     char com[MAX_COMM][MAX_COMM_NAME];
     int  comnum[MAX_COMM];
 } CommArray;
+
+union Type_a4byte {
+    type_a f;
+    char s[UNION_CHAR_CAP];
+};
+
+const int ARG_POISON = -99999;
+const int LAST8  = 255;
+const int FIRST8 = 255 << ((sizeof(type_a) - 1) * 8);
+const char COMMENT_SYMB = '%';
+const char LABEL_SYMB = ':';
 
 enum {
     OUT = 0,
@@ -92,9 +100,9 @@ enum {
 int   FileCheck    (FILE* f, char* name);
 int   AssembFailCom();
 int   AssembFailArg(char* comm);
-int   GetComm      (char** code, CommArray CommandArray, char** buffcom, label* l);
+int   GetComm      (char** code, CommArray CommandArray, char** buffcom); //, label* l);
 int   GetReg       (char** s, char* reg);
-int   GetArg       (char** s, char* arg);
+int   GetArg       (char** s, union Type_a4byte* arg);
 int   SkipSpace    (char** s);
 int   SkipNonSpaces(char** s);
 int   StrFree      (char** code);
@@ -118,15 +126,13 @@ int Assembler(char* instr, char *outstr) {
             {"out", "pop", "push", "add", "sub", "mul", "div", "sin", "cos", "sqrt", "jmp", "je", "jne", "ja", "jae", "jb", "jbe"},
             {OUT, POP, PUSH, ADD, SUB, MUL, DIV, SIN, COS, SQRT, JMP, JE, JNE, JA, JAE, JB, JBE, -1},
     };
-    char* code = CreateBuffer(instr);
-    //ll length;
-    //line* code2 = ParseBuffer(code, &length);
-
-    int bufflen = strchr(code, '\0') - code;
+    char* PRIVIOUS_CODE = CreateBuffer(instr);
+    char* code = PRIVIOUS_CODE;
+    //int bufflen = strchr(code, '\0') - code;
     char* buffcom;
     int numlen = NumLines(code);
 
-    char wrstr[numlen * 3];
+    char wrstr[numlen * 5];
     int  wrlen = 0;
 
     label l[numlen]; //array of labels {name, code position}
@@ -138,7 +144,7 @@ int Assembler(char* instr, char *outstr) {
     for(firstpass = code; firstpass != NULL; firstpass = strchr(firstpass, '\n')) {
         firstpass++;
         SkipSpace(&firstpass);
-        int comm = GetComm(&firstpass, ComArr, &buffcom, l);
+        int comm = GetComm(&firstpass, ComArr, &buffcom); //, l);
         if(comm != ISLABEL) {
             if(comm != FREELINE) scounter++;
             continue;
@@ -155,13 +161,15 @@ int Assembler(char* instr, char *outstr) {
     //SECOND PASS
     //char command = -1;
     int CheckArg = 0;
-    char arg = 0;
+    union Type_a4byte arg;
+    arg.f = 0;
+    char arg1;
 
-    printf("bufflen/3 = %d\n", bufflen);
+    //printf("bufflen/3 = %d\n", bufflen);
     for(; code != NULL; code = strchr(code, '\n')) { //&& *(code+1) != '\0'
         code++;
         CheckArg = 0;
-        char command = GetComm(&code, ComArr, &buffcom, l);         //must be integer
+        char command = GetComm(&code, ComArr, &buffcom); //, l);         //must be integer
         printf("comm = %d\n", command);
         if(command == FREELINE || command == ISLABEL) continue;
         if(command == UNKNOWN) return AssembFailCom();
@@ -175,16 +183,20 @@ int Assembler(char* instr, char *outstr) {
         case POP:
             //SkipSpaces(code);
             if(StrFree(&code)) return AssembFailArg(buffcom);
-            if(GetReg(&code, &arg))
+            if(GetReg(&code, &arg1)) {
                 wrstr[wrlen-1] = POP2;
+                wrstr[wrlen++] = arg1;
+            }
             else
                 CheckArg = GetArg(&code, &arg);
             if(! StrFree(&code)) return AssembFailArg(buffcom);
             break;
         case PUSH:
             if(StrFree(&code)) return AssembFailArg(buffcom);
-            if((CheckArg = GetReg(&code, &arg)) == 1)
+            if(GetReg(&code, &arg1) == 1) {
                 wrstr[wrlen-1] = PUSH2;
+                wrstr[wrlen++] = arg1;
+            }
             else
                 CheckArg = GetArg(&code, &arg);
             if((! CheckArg) || (! StrFree(&code))) return AssembFailArg(buffcom);
@@ -210,7 +222,7 @@ int Assembler(char* instr, char *outstr) {
             int i;
             for(i = 0; l[i].num != -1; i++)
                 if(strncmp(l[i].name, code, strlen(l[i].name))) {
-                    arg = l[i].num;
+                    arg.f = l[i].num;
                     CheckArg = 1;
                     break;
                 }
@@ -221,21 +233,27 @@ int Assembler(char* instr, char *outstr) {
             printf("No definition for command %s!\n", buffcom);
             return -3;
         }
-        if(CheckArg)
-            wrstr[wrlen++] = arg;
+        if(CheckArg) {
+            int i;
+            for(i = 0; i < UNION_CHAR_CAP; i++)
+            wrstr[wrlen++] = arg.s[i];
+        }
         puts(wrstr);
 
     }
 
     int i;
+
     for(i = 0; i < wrlen; i++)
-        wrstr[i] += '0';
+       wrstr[i] += '0';
     wrstr[wrlen] = '\0';
-    printf("wrstr|\n");
+    //printf("wrstr|\n");
     printf("wrstr = %s\n",wrstr);
     fwrite(wrstr, sizeof(char), wrlen, out);
 
-    for(i = 0; l[i]; i++)
+    //for(i = 0; l[i].num != -1; i++)
+    //    free(l[i].name);
+    free(PRIVIOUS_CODE); // It was pointer == code (before code become NULL in for)
     fclose(out);
     return 0;
 }
@@ -254,7 +272,7 @@ int SkipSpace(char** s) {
     return 0;
 }
 
-int GetComm(char** code, CommArray CommandArray, char** buffcom, label* l) {
+int GetComm(char** code, CommArray CommandArray, char** buffcom) {// ,label* l) {
     SkipSpace(code);
     if(**code == '\n' || **code == '\0' || **code == COMMENT_SYMB) return FREELINE;
 
@@ -268,7 +286,7 @@ int GetComm(char** code, CommArray CommandArray, char** buffcom, label* l) {
     for(i = 0; CommandArray.comnum[i] != -1; i++) {
         if(strncmp(*code, CommandArray.com[i], strlen(CommandArray.com[i])) == 0) {
             SkipNonSpaces(code);
-            if(*buffcom) *buffcom = CommandArray.com[i];
+            if(buffcom) *buffcom = CommandArray.com[i];
             return CommandArray.comnum[i];
         }
     }
@@ -299,7 +317,7 @@ int AssembFailArg(char* comm) {
     return -2;
 }
 
-int GetReg(char** s, int *reg) {
+int GetReg(char** s, char *reg) {
     SkipSpace(s);
     if(strncmp(*s, "reg", 3) == 0) {
         int i = 0;
@@ -315,13 +333,21 @@ int GetReg(char** s, int *reg) {
     return 0;
 }
 
-int GetArg(char** s, int *arg) { // *s = "     54354   \n ghjgkjkg fg"
+int GetArg(char** s, union Type_a4byte *arg) { // *s = "     54354   \n ghjgkjkg fg"
     SkipSpace(s);
     int i;
+    int flag = 1;
     for(i = 0; (*s)[i] != ' ' && (*s)[i] != '\n' && (*s)[i] != '\0'; i++) {
-        if((*s)[i] < '0' || (*s)[i] > '9') return 0;
+        if((*s)[i] < '0' || (*s)[i] > '9') {
+            if(flag && ((*s)[i] == ',' || (*s)[i] == '.')) {
+                flag = 0;
+                continue;
+            }
+            else
+                return 0;
+        }
     }
-    *arg = atoi(*s);
+    (*arg).f = atof(*s);
     SkipNonSpaces(s);
     return 1;
 }
