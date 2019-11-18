@@ -14,21 +14,6 @@
 #include "Stack.h"
 #include <math.h>
 
-//#define DEBUG
-
-enum { //Error numbers
-    ECANARY1 = 132,
-    ECANARY2 = 133,
-    EHASH  = 134,
-    ECANARYBOTH = 135,
-    EOPFILEERR = 136,
-    EOPFILECH = 137,
-    EUNDERFLOW = 138,
-    EBUFEMPTY = ENOBUFS,
-    ENOTENMEM = ENOMEM,
-    BUFFOVERFLOW = EOVERFLOW
-
-};
 
 stack StackConstruct(ui buff, char* StkCheckFile, char* StkErrFile) {
     stack stk;
@@ -187,6 +172,12 @@ stk_t StackPop(stack *stk) {
         return POISON; //Stack free
     }
 #endif
+#ifndef DEBUG
+    if(stk->size == 0) {
+        stk->err = EUNDERFLOW;
+        return POISON; //Stack free
+    }
+#endif
     a = stk->stk[--stk->size];
 
     if(stk->size <= stk->buff/2 - ODDS) {
@@ -229,7 +220,7 @@ int StackPrint(stack* stk) {
     else len = stk->buff;
     if(stk->stk != NULL)
         for(i = 0; i < len; i++) {
-            fprintf(stk->stkprint, "       [%u] = %d%s\n", i, stk->stk[i], CheckNumber(stk->stk[i]));
+            fprintf(stk->stkprint, "       [%u] = %f%s\n", i, stk->stk[i], CheckNumber(stk->stk[i]));
         }
     fprintf(stk->stkprint, "   }\n");
     fprintf(stk->stkprint, "   hash = 0x%X\n",  stk->hash);

@@ -14,8 +14,8 @@ typedef float ram_t;
 typedef float reg_t;
 typedef float  type_a;
 
-/*#define LABEL_NAME_SIZE 50
 #define MAX_COMM 100
+/*#define LABEL_NAME_SIZE 50
 #define MAX_COMM_NAME 10*/
 #define PROC_RAM_SIZE 8096
 #define PROC_NUM_OF_REGS 4
@@ -27,7 +27,7 @@ typedef float  type_a;
         }*/
 
 
-typedef struct _Processor {
+/*typedef struct _Processor {
     reg_t reg[PROC_NUM_OF_REGS];
     reg_t rip;
     reg_t rsp;
@@ -35,6 +35,7 @@ typedef struct _Processor {
     stack stk;
     ram_t ram[PROC_RAM_SIZE];
 } Processor;
+*/
 
 /*typedef struct _label {
     //char* name; //start:
@@ -80,7 +81,8 @@ enum {
     JA = 15,
     JAE = 16,
     JB = 17,
-    JBE = 18
+    JBE = 18,
+    PRNT = 20
 
 };
 

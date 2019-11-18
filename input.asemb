@@ -3,5 +3,6 @@
     push    854554   
     gjgk:
 push 9
-jmp gigk
-pop reg1
+add
+%pop reg1
+prnt

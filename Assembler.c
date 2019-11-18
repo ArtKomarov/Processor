@@ -26,8 +26,8 @@ int Assembler(char* instr, char *outstr) {
         return -1;
 
     CommArray ComArr = {
-            {"out", "pop", "push", "add", "sub", "mul", "div", "sin", "cos", "sqrt", "jmp", "je", "jne", "ja", "jae", "jb", "jbe"},
-            {OUT, POP, PUSH, ADD, SUB, MUL, DIV, SIN, COS, SQRT, JMP, JE, JNE, JA, JAE, JB, JBE, -1},
+            {"out", "pop", "push", "add", "sub", "mul", "div", "sin", "cos", "sqrt", "jmp", "je", "jne", "ja", "jae", "jb", "jbe", "prnt"},
+            {OUT,    POP,   PUSH,   ADD,   SUB,   MUL,   DIV,   SIN,   COS,   SQRT,   JMP,   JE,   JNE,   JA,   JAE,   JB,   JBE,   PRNT, -1}
     };
     char* PRIVIOUS_CODE = CreateBuffer(instr);
     char* code = PRIVIOUS_CODE;
@@ -83,7 +83,7 @@ int Assembler(char* instr, char *outstr) {
         code++;
         CheckArg = 0;
         char command = GetComm(&code, ComArr, &buffcom); //, l);         //must be integer
-        printf("comm = %d\n", command);
+        //printf("comm = %d\n", command);
         if(command == FREELINE || command == ISLABEL) continue;
         if(command == UNKNOWN) {
             fclose(out);
@@ -104,9 +104,7 @@ int Assembler(char* instr, char *outstr) {
         case POP:
             //SkipSpaces(code);
             if(StrFree(&code)) {
-                fclose(out);
-                free(PRIVIOUS_CODE);
-                return AssembFailArg(buffcom);
+                break;
             }
             if(GetReg(&code, &arg1)) {
                 wrstr[wrlen-1] = POP2;
@@ -121,18 +119,18 @@ int Assembler(char* instr, char *outstr) {
             }
             break;
         case PUSH:
-            if(StrFree(&code)) {
+            /*if(StrFree(&code)) {
                 fclose(out);
                 free(PRIVIOUS_CODE);
                 return AssembFailArg(buffcom);
-            }
+            }*/
             if(GetReg(&code, &arg1) == 1) {
                 wrstr[wrlen-1] = PUSH2;
                 wrstr[wrlen++] = arg1;
             }
             else
                 CheckArg = GetArg(&code, &arg);
-            if((! CheckArg) || (! StrFree(&code))) {
+            if(! StrFree(&code)) {
                 fclose(out);
                 free(PRIVIOUS_CODE);
                 return AssembFailArg(buffcom);
@@ -145,6 +143,7 @@ int Assembler(char* instr, char *outstr) {
         case SIN:
         case COS:
         case SQRT:
+        case PRNT:
             if(! StrFree(&code)) {
                 fclose(out);
                 free(PRIVIOUS_CODE);
@@ -189,7 +188,7 @@ int Assembler(char* instr, char *outstr) {
             for(i = 0; i < UNION_CHAR_CAP; i++)
             wrstr[wrlen++] = arg.s[i];
         }
-        puts(wrstr);
+        //puts(wrstr);
 
     }
 
@@ -199,7 +198,7 @@ int Assembler(char* instr, char *outstr) {
        wrstr[i] += '0';
     wrstr[wrlen] = '\0';
     //printf("wrstr|\n");
-    printf("wrstr = %s\n",wrstr);
+    //printf("wrstr = %s\n",wrstr);
     fwrite(wrstr, sizeof(char), wrlen, out);
 
     //for(i = 0; l[i].num != -1; i++)

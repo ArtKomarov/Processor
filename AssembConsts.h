@@ -8,8 +8,10 @@
 #ifndef ASSEMBCONSTS_H_
 #define ASSEMBCONSTS_H_
 
+#include "ProcessorConsts.h"
+
 #define LABEL_NAME_SIZE 50
-#define MAX_COMM 100
+//#define MAX_COMM 100
 #define MAX_COMM_NAME 10
 
 typedef struct _label {

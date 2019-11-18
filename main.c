@@ -8,9 +8,10 @@
 
 #include "ProcessorConsts.h"
 #include "Assembler.h"
-
+#include "Processor.h"
 
 int main() {
     Assembler("input.asemb", "out.byte");
+    CPU("out.byte");
     return 0;
 }
