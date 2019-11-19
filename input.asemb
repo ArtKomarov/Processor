@@ -1,8 +1,11 @@
     push 8
     
-    push    854554   
+    push  854  
+    jmp gjgk
+    push    99999  
     gjgk:
 push 9
 add
+
 %pop reg1
 prnt

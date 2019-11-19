@@ -7,11 +7,12 @@
 
 #ifndef STACKOPERATIONS_H_
 #define STACKOPERATIONS_H_
-
+/*
 #include "Stack.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
 
 enum{
     PUSH,
@@ -172,6 +173,6 @@ int Get2arg(char*s, stk_t *elem1, stk_t *elem2) {
     }
 
     return 1;
-}
+}*/
 
 #endif /* STACKOPERATIONS_H_ */

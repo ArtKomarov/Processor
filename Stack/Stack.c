@@ -180,7 +180,7 @@ stk_t StackPop(stack *stk) {
 #endif
     a = stk->stk[--stk->size];
 
-    if(stk->size <= stk->buff/2 - ODDS) {
+    if((long long)stk->size <= (long long)stk->buff/2 - (long long)ODDS) {
         stk->buff /= 2;
         stk_t* sup = (stk_t*)realloc(stk->stk, stk->buff);
 #ifdef DEBUG

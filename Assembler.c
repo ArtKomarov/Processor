@@ -43,14 +43,29 @@ int Assembler(char* instr, char *outstr) {
 
     //FIRST PASS
     char* firstpass;
-    int scounter = 1;
+    int scounter = 0;
     for(firstpass = code; firstpass != NULL; firstpass = strchr(firstpass, '\n')) {
         firstpass++;
         SkipSpace(&firstpass);
         int comm = GetComm(&firstpass, ComArr, &buffcom); //, l);
         if(comm != ISLABEL) {
-            if(comm != FREELINE) scounter++;
-            continue;
+            if(comm == FREELINE) continue;
+            scounter++;
+            switch(comm) {
+            case POP2:
+            case PUSH2:
+            scounter++;
+            break;
+            case PUSH:
+            case JMP:
+            case JE:
+            case JNE:
+            case JA:
+            case JAE:
+            case JB :
+            scounter += UNION_CHAR_CAP;
+            break;
+            }
         }
         else {
             char* sup = firstpass;
@@ -165,7 +180,7 @@ int Assembler(char* instr, char *outstr) {
             }
             int i;
             for(i = 0; l[i].num != -1; i++)
-                if(strncmp(l[i].name, code, strlen(l[i].name))) {
+                if(strncmp(l[i].name, code, strlen(l[i].name)) == 0) {
                     arg.f = l[i].num;
                     CheckArg = 1;
                     break;

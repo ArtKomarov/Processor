@@ -43,6 +43,7 @@ int CPU(char *input) {
             return -1;
         }
     }
+    ProcessorDestruct(&proc);
     //free(buff.code);
     return 0;
 }
@@ -224,9 +225,9 @@ int _div(Processor* proc) {
 int _sin(Processor* proc) {
     assert(proc != NULL);
     stk_t arg1 = StackPop(&proc->stk);
-    stk_t arg2 = sin(arg1);
+    //stk_t arg2 = sin(arg1);
     if(proc->stk.err == EUNDERFLOW) return -1;
-    else StackPush(&proc->stk, arg2);
+    //else StackPush(&proc->stk, arg2);
     if(proc->stk.err == ENOTENMEM) return -1;
     return 1;
 }
@@ -234,9 +235,9 @@ int _sin(Processor* proc) {
 int _cos(Processor* proc) {
     assert(proc != NULL);
     stk_t arg1 = StackPop(&proc->stk);
-    stk_t arg2 = cos(arg1);
+    //stk_t arg2 = cos(arg1);
     if(proc->stk.err == EUNDERFLOW) return -1;
-    else StackPush(&proc->stk, arg2);
+    //else StackPush(&proc->stk, arg2);
     if(proc->stk.err == ENOTENMEM) return -1;
     return 1;
 }
@@ -244,9 +245,9 @@ int _cos(Processor* proc) {
 int _sqrt(Processor* proc) {
     assert(proc != NULL);
     stk_t arg1 = StackPop(&proc->stk);
-    stk_t arg2 = sqrt(arg1);
+    //stk_t arg2 = sqrt(arg1);
     if(proc->stk.err == EUNDERFLOW) return -1;
-    else StackPush(&proc->stk, arg2);
+    //else StackPush(&proc->stk, arg2);
     if(proc->stk.err == ENOTENMEM) return -1;
     return 1;
 }
