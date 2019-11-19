@@ -35,13 +35,14 @@ typedef struct _CommFunc {
 
 int CPU(char *input);
 Processor ProcessorConstruct();
-int ProcessorDestruct(Processor* proc);
+int       ProcessorDestruct (Processor* proc);
 
-int FillCommFunc(CommFunc* cf);
-int MakePair(CommFunc* cf, int NumComm, int (*comm)(Processor* proc), int* i);
-int GetCPUComm(Processor* proc);
-int GetCPUArg(Processor* proc, type_a* arg);
-int GetCPUReg(Processor* proc, int* num);
+int FillCommFunc  (CommFunc* cf);
+int MakePair      (CommFunc* cf, int NumComm, int (*comm)(Processor* proc), int* i);
+int GetCPUComm    (Processor* proc);
+int GetCPUArg     (Processor* proc, type_a* arg);
+int GetCPUReg     (Processor* proc, int* num);
+int PrintCommError(int comm, int linenum);
 
 int out  (Processor* proc);
 int pop  (Processor* proc);

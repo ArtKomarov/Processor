@@ -12,7 +12,7 @@
 
 #define LABEL_NAME_SIZE 50
 //#define MAX_COMM 100
-#define MAX_COMM_NAME 10
+//#define MAX_COMM_NAME 10
 
 typedef struct _label {
     //char* name; //start:

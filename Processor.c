@@ -20,6 +20,7 @@ int CPU(char *input) {
     //bcode buff;
     //buff.code = CreateBuffer(input);
     //buff.current = 0;
+    int linenum = 0;
     CommFunc cfunc[MAX_COMM];
     FillCommFunc(cfunc);
     int CommCheck;
@@ -27,6 +28,7 @@ int CPU(char *input) {
         int i;
         CommCheck = -1;
         int comm = GetCPUComm(&proc);
+        linenum++;
         for(i = 0; cfunc[i].NumComm >= 0; i++) {
             if(cfunc[i].NumComm == comm) {
                 CommCheck = cfunc[i].comm(&proc);
@@ -38,7 +40,8 @@ int CPU(char *input) {
             }
         }
         if(CommCheck < 0) {
-            printf("Some command catch error!\n");
+            PrintCommError(comm, linenum);
+            //printf("Some command catch error!\n");
             ProcessorDestruct(&proc);
             return -1;
         }
@@ -138,6 +141,86 @@ int GetCPUComm(Processor* proc) {
     return comm;
 }
 
+int PrintCommError(int comm, int linenum) {
+    char c[MAX_COMM_NAME];
+    c[0] = '\0';
+    if(comm == POP || comm == POP2)
+        fprintf(stderr, "%d: Command pop catch error: EUNDERFLOW or invalid register number!\n", linenum);
+    else if(comm == PUSH || comm == PUSH2)
+        fprintf(stderr, "%d: Command pop catch error: ENOMEM or invalid register number!\n", linenum);
+    else {
+        switch(comm) {
+        case OUT:
+            strcpy(c, "out");
+            break;
+        case ADD:
+            strcpy(c, "add");
+            break;
+        case SUB:
+            strcpy(c, "sub");
+            break;
+        case MUL:
+            strcpy(c, "mul");
+            break;
+        case SIN:
+            strcpy(c, "sin");
+            break;
+        case COS:
+            strcpy(c, "cos");
+            break;
+        case PRNT:
+            strcpy(c, "prnt");
+            break;
+        }
+        if(c[0] != '\0') fprintf(stderr, "%d: Command %s catch error!\n", linenum, c);
+        else {
+            switch (comm) {
+            case JMP:
+                strcpy(c, "jmp");
+                break;
+            case JE:
+                strcpy(c, "je");
+                break;
+            case JNE:
+                strcpy(c, "jne");
+                break;
+            case JA:
+                strcpy(c, "ja");
+                break;
+            case JAE:
+                strcpy(c, "jae");
+                break;
+            case JB:
+                strcpy(c, "jb");
+                break;
+            case JBE:
+                strcpy(c, "jbe");
+                break;
+            }
+            if(c[0] != '\0') fprintf(stderr, "%d: Command %s catch error: jamp into big or less ziro number!\n", linenum, c);
+            else if(comm == SQRT) fprintf(stderr, "%d: Command sqrt catch error: maybe argument is less then ziro!\n", linenum);
+            else if(comm == DIV) fprintf(stderr, "%d: Command div catch error: maybe argument is less then ziro!\n", linenum);
+            else fprintf(stderr, "%d: Unknown command used!\n", linenum);
+        }
+    }
+    /*switch(comm) {
+    case OUT:
+        fprintf(stderr, "Command out catch error!\n");
+        break;
+    case POP:
+    case POP2:
+        fprintf(stderr, "Command pop catch error: EUNDERFLOW or invalid register number!\n");
+        break;
+    case PUSH:
+    case PUSH2:
+        fprintf(stderr, "Command push catch error: ENOMEM or invalid register number!\n");
+        break;
+    case ADD:
+
+    }*/
+    return 0;
+}
+
 int out(Processor* proc) {
     assert(proc != NULL);
     return 0;
@@ -225,9 +308,9 @@ int _div(Processor* proc) {
 int _sin(Processor* proc) {
     assert(proc != NULL);
     stk_t arg1 = StackPop(&proc->stk);
-    //stk_t arg2 = sin(arg1);
+    stk_t arg2 = sin(arg1);
     if(proc->stk.err == EUNDERFLOW) return -1;
-    //else StackPush(&proc->stk, arg2);
+    else StackPush(&proc->stk, arg2);
     if(proc->stk.err == ENOTENMEM) return -1;
     return 1;
 }
@@ -235,9 +318,9 @@ int _sin(Processor* proc) {
 int _cos(Processor* proc) {
     assert(proc != NULL);
     stk_t arg1 = StackPop(&proc->stk);
-    //stk_t arg2 = cos(arg1);
+    stk_t arg2 = cos(arg1);
     if(proc->stk.err == EUNDERFLOW) return -1;
-    //else StackPush(&proc->stk, arg2);
+    else StackPush(&proc->stk, arg2);
     if(proc->stk.err == ENOTENMEM) return -1;
     return 1;
 }
@@ -245,9 +328,9 @@ int _cos(Processor* proc) {
 int _sqrt(Processor* proc) {
     assert(proc != NULL);
     stk_t arg1 = StackPop(&proc->stk);
-    //stk_t arg2 = sqrt(arg1);
+    stk_t arg2 = sqrt(arg1);
     if(proc->stk.err == EUNDERFLOW) return -1;
-    //else StackPush(&proc->stk, arg2);
+    else StackPush(&proc->stk, arg2);
     if(proc->stk.err == ENOTENMEM) return -1;
     return 1;
 }

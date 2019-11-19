@@ -15,8 +15,8 @@ typedef float reg_t;
 typedef float  type_a;
 
 #define MAX_COMM 100
-/*#define LABEL_NAME_SIZE 50
-#define MAX_COMM_NAME 10*/
+/*#define LABEL_NAME_SIZE 50*/
+#define MAX_COMM_NAME 10
 #define PROC_RAM_SIZE 8096
 #define PROC_NUM_OF_REGS 4
 #define UNION_CHAR_CAP ((int)(sizeof(type_a)))
