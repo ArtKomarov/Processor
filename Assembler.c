@@ -26,8 +26,8 @@ int Assembler(char* instr, char *outstr) {
         return -1;
 
     CommArray ComArr = {
-            {"out", "pop", "push", "add", "sub", "mul", "div", "sin", "cos", "sqrt", "jmp", "je", "jne", "ja", "jae", "jb", "jbe", "prnt"},
-            {OUT,    POP,   PUSH,   ADD,   SUB,   MUL,   DIV,   SIN,   COS,   SQRT,   JMP,   JE,   JNE,   JA,   JAE,   JB,   JBE,   PRNT, -1}
+            {"out", "pop", "push", "add", "sub", "mul", "div", "sin", "cos", "sqrt", "jmp", "je", "jne", "ja", "jae", "jb", "jbe", "prnt", "cmp"},
+            {OUT,    POP,   PUSH,   ADD,   SUB,   MUL,   DIV,   SIN,   COS,   SQRT,   JMP,   JE,   JNE,   JA,   JAE,   JB,   JBE,   PRNT,   CMP, -1}
     };
     char* PRIVIOUS_CODE = CreateBuffer(instr);
     char* code = PRIVIOUS_CODE;
@@ -84,7 +84,7 @@ int Assembler(char* instr, char *outstr) {
         }
     }
     l[labelsize].num = -1;
-
+    scounter = 0;
 
     //SECOND PASS
     //char command = -1;
@@ -99,6 +99,7 @@ int Assembler(char* instr, char *outstr) {
         CheckArg = 0;
         char command = GetComm(&code, ComArr, &buffcom); //, l);         //must be integer
         //printf("comm = %d\n", command);
+        scounter++;
         if(command == FREELINE || command == ISLABEL) continue;
         if(command == UNKNOWN) {
             fclose(out);
@@ -113,7 +114,7 @@ int Assembler(char* instr, char *outstr) {
             if(! StrFree(&code)) {
                 fclose(out);
                 free(PRIVIOUS_CODE);
-                return AssembFailArg(buffcom);
+                return AssembFailArg(buffcom, scounter);
             }
             break;
         case POP:
@@ -130,7 +131,7 @@ int Assembler(char* instr, char *outstr) {
             if(! StrFree(&code)) {
                 fclose(out);
                 free(PRIVIOUS_CODE);
-                return AssembFailArg(buffcom);
+                return AssembFailArg(buffcom, scounter);
             }
             break;
         case PUSH:
@@ -148,7 +149,7 @@ int Assembler(char* instr, char *outstr) {
             if(! StrFree(&code)) {
                 fclose(out);
                 free(PRIVIOUS_CODE);
-                return AssembFailArg(buffcom);
+                return AssembFailArg(buffcom, scounter);
             }
             break;
         case ADD:
@@ -159,10 +160,11 @@ int Assembler(char* instr, char *outstr) {
         case COS:
         case SQRT:
         case PRNT:
+        case CMP:
             if(! StrFree(&code)) {
                 fclose(out);
                 free(PRIVIOUS_CODE);
-                return AssembFailArg(buffcom);
+                return AssembFailArg(buffcom, scounter);
             }
             break;
         case JMP:
@@ -176,7 +178,7 @@ int Assembler(char* instr, char *outstr) {
             if(StrFree(&code)) {
                 fclose(out);
                 free(PRIVIOUS_CODE);
-                return AssembFailArg(buffcom);
+                return AssembFailArg(buffcom, scounter);
             }
             int i;
             for(i = 0; l[i].num != -1; i++)
@@ -188,7 +190,7 @@ int Assembler(char* instr, char *outstr) {
             if(! CheckArg) {
                 fclose(out);
                 free(PRIVIOUS_CODE);
-                return AssembFailArg(buffcom); //unknown label
+                return AssembFailArg(buffcom, scounter); //unknown label
             }
             break;
         }
@@ -269,8 +271,8 @@ int AssembFailCom() {
     return -1;
 }
 
-int AssembFailArg(char* comm) {
-    fprintf(stderr, "%s : Invalid argument!\n", comm);
+int AssembFailArg(char* comm, int scounter) {
+    fprintf(stderr, "%s in %d : Invalid argument!\n", comm, scounter);
     return -2;
 }
 

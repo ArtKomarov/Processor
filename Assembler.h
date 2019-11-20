@@ -13,7 +13,7 @@
 
 int   FileCheck    (FILE* f, char* name);
 int   AssembFailCom();
-int   AssembFailArg(char* comm);
+int   AssembFailArg(char* comm, int scounter);
 int   GetComm      (char** code, CommArray CommandArray, char** buffcom); //, label* l);
 int   GetReg       (char** s, char* reg);
 int   GetArg       (char** s, union Type_a4byte* arg);

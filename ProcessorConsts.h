@@ -82,7 +82,8 @@ enum {
     JAE = 16,
     JB = 17,
     JBE = 18,
-    PRNT = 20
+    PRNT = 20,
+    CMP = 21
 
 };
 

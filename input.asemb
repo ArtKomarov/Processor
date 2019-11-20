@@ -6,6 +6,8 @@
     gjgk:
 push 9
 add
-
+cmp
+je kik
 %pop reg1
 prnt
+kik:

@@ -95,6 +95,7 @@ int FillCommFunc(CommFunc* cf) {
     MakePair(cf, JB,    jb,    &i);
     MakePair(cf, JBE,   jbe,   &i);
     MakePair(cf, PRNT,  prnt,  &i);
+    MakePair(cf, CMP,   cmp,  &i);
     MakePair(cf, -1,    out,   &i);
     return 0;
 }
@@ -147,7 +148,7 @@ int PrintCommError(int comm, int linenum) {
     if(comm == POP || comm == POP2)
         fprintf(stderr, "%d: Command pop catch error: EUNDERFLOW or invalid register number!\n", linenum);
     else if(comm == PUSH || comm == PUSH2)
-        fprintf(stderr, "%d: Command pop catch error: ENOMEM or invalid register number!\n", linenum);
+        fprintf(stderr, "%d: Command push catch error: ENOMEM or invalid register number!\n", linenum);
     else {
         switch(comm) {
         case OUT:
@@ -200,7 +201,19 @@ int PrintCommError(int comm, int linenum) {
             if(c[0] != '\0') fprintf(stderr, "%d: Command %s catch error: jamp into big or less ziro number!\n", linenum, c);
             else if(comm == SQRT) fprintf(stderr, "%d: Command sqrt catch error: maybe argument is less then ziro!\n", linenum);
             else if(comm == DIV) fprintf(stderr, "%d: Command div catch error: maybe argument is less then ziro!\n", linenum);
-            else fprintf(stderr, "%d: Unknown command used!\n", linenum);
+            else {
+                switch(comm) {
+                case PRNT:
+                    strcpy(c, "prnt");
+                    break;
+                case CMP:
+                    strcpy(c, "cmp");
+                    break;
+                }
+                if(c[0] != '\0')
+                    fprintf(stderr, "%d: Command %s catch error: Not enough arguments in stack or not enough memory for push back arguments in stack (because we get them with pop)!\n", linenum, c);
+                    else fprintf(stderr, "%d: Unknown command used!\n", linenum);
+            }
         }
     }
     /*switch(comm) {
@@ -308,9 +321,9 @@ int _div(Processor* proc) {
 int _sin(Processor* proc) {
     assert(proc != NULL);
     stk_t arg1 = StackPop(&proc->stk);
-    stk_t arg2 = sin(arg1);
+  //  stk_t arg2 = sin(arg1);
     if(proc->stk.err == EUNDERFLOW) return -1;
-    else StackPush(&proc->stk, arg2);
+    //else StackPush(&proc->stk, arg2);
     if(proc->stk.err == ENOTENMEM) return -1;
     return 1;
 }
@@ -318,9 +331,9 @@ int _sin(Processor* proc) {
 int _cos(Processor* proc) {
     assert(proc != NULL);
     stk_t arg1 = StackPop(&proc->stk);
-    stk_t arg2 = cos(arg1);
+    //stk_t arg2 = cos(arg1);
     if(proc->stk.err == EUNDERFLOW) return -1;
-    else StackPush(&proc->stk, arg2);
+    //else StackPush(&proc->stk, arg2);
     if(proc->stk.err == ENOTENMEM) return -1;
     return 1;
 }
@@ -328,9 +341,9 @@ int _cos(Processor* proc) {
 int _sqrt(Processor* proc) {
     assert(proc != NULL);
     stk_t arg1 = StackPop(&proc->stk);
-    stk_t arg2 = sqrt(arg1);
+    //stk_t arg2 = sqrt(arg1);
     if(proc->stk.err == EUNDERFLOW) return -1;
-    else StackPush(&proc->stk, arg2);
+    //else StackPush(&proc->stk, arg2);
     if(proc->stk.err == ENOTENMEM) return -1;
     return 1;
 }
@@ -345,56 +358,56 @@ int jmp(Processor* proc) {
 
 int ja(Processor* proc) {
     assert(proc != NULL);
-    if(proc->flag != 1) return 1;
-    type_a arg;
-    if(GetCPUArg(proc, &arg) == -1) return -1;
-    else proc->rip = (int)arg;
-    return 1;
+    if(proc->flag < 1) {
+        proc->rip += UNION_CHAR_CAP;
+        return 1;
+    }
+    return jmp(proc);
 }
 
 int jae(Processor* proc) {
     assert(proc != NULL);
-    if(proc->flag >= 0) return 1;
-    type_a arg;
-    if(GetCPUArg(proc, &arg) == -1) return -1;
-    else proc->rip = (int)arg;
-    return 1;
+    if(proc->flag < 0) {
+        proc->rip += UNION_CHAR_CAP;
+        return 1;
+    }
+       return jmp(proc);
 }
 
 int jb(Processor* proc) {
     assert(proc != NULL);
-    if(proc->flag != -1) return 1;
-    type_a arg;
-    if(GetCPUArg(proc, &arg) == -1) return -1;
-    else proc->rip = (int)arg;
-    return 1;
+    if(proc->flag > -1) {
+           proc->rip += UNION_CHAR_CAP;
+           return 1;
+       }
+       return jmp(proc);
 }
 
 int jbe(Processor* proc) {
     assert(proc != NULL);
-    if(proc->flag <= 0) return 1;
-    type_a arg;
-    if(GetCPUArg(proc, &arg) == -1) return -1;
-    else proc->rip = (int)arg;
-    return 1;
+    if(proc->flag <= 0) {
+        proc->rip += UNION_CHAR_CAP;
+        return 1;
+    }
+    return jmp(proc);
 }
 
 int je(Processor* proc) {
     assert(proc != NULL);
-    if(proc->flag != 0) return 1;
-    type_a arg;
-    if(GetCPUArg(proc, &arg) == -1) return -1;
-    else proc->rip = (int)arg;
-    return 1;
+    if(proc->flag != 0) {
+        proc->rip += UNION_CHAR_CAP;
+        return 1;
+    }
+    return jmp(proc);
 }
 
 int jne(Processor* proc) {
     assert(proc != NULL);
-    if(proc->flag == 0) return 1;
-    type_a arg;
-    if(GetCPUArg(proc, &arg) == -1) return -1;
-    else proc->rip = (int)arg;
-    return 1;
+    if(proc->flag == 0) {
+        proc->rip += UNION_CHAR_CAP;
+        return 1;
+    }
+    return jmp(proc);
 }
 
 int prnt(Processor* proc) {
@@ -403,6 +416,20 @@ int prnt(Processor* proc) {
     if(proc->stk.err == EUNDERFLOW) return -1;
     printf("%f", arg);
     StackPush(&proc->stk, arg);
+    if(proc->stk.err == ENOTENMEM) return -1;
+    return 1;
+}
+
+int cmp(Processor* proc) {
+    assert(proc != NULL);
+    stk_t arg1 = StackPop(&proc->stk);
+    stk_t arg2 = StackPop(&proc->stk);
+    if(proc->stk.err == EUNDERFLOW) return -1;
+    if(arg1 < arg2) proc->flag = 1;
+    else if(arg1 > arg2) proc->flag = -1;
+    else proc->flag = 0;
+    StackPush(&proc->stk, arg2);
+    StackPush(&proc->stk, arg1);
     if(proc->stk.err == ENOTENMEM) return -1;
     return 1;
 }
