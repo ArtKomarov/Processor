@@ -2,12 +2,12 @@
     
     push  854  
     jmp gjgk
-    push    99999  
+    kik:
+    push    9 
     gjgk:
-push 9
-add
+ scan 
+  %  add
 cmp
-je kik
+jb kik
 %pop reg1
 prnt
-kik:

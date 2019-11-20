@@ -10,9 +10,10 @@
 
 #include "Stack/Stack.h"
 
-typedef float ram_t;
-typedef float reg_t;
 typedef float  type_a;
+typedef type_a ram_t;
+typedef type_a reg_t;
+
 
 #define MAX_COMM 100
 /*#define LABEL_NAME_SIZE 50*/
@@ -83,7 +84,8 @@ enum {
     JB = 17,
     JBE = 18,
     PRNT = 20,
-    CMP = 21
+    CMP = 21,
+    SCAN = 22
 
 };
 

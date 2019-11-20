@@ -65,5 +65,6 @@ int jb   (Processor* proc);
 int jbe  (Processor* proc);
 int prnt (Processor* proc);
 int cmp  (Processor* proc);
+int scan (Processor* proc);
 
 #endif /* PROCESSOR_H_ */

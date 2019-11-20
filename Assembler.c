@@ -26,8 +26,8 @@ int Assembler(char* instr, char *outstr) {
         return -1;
 
     CommArray ComArr = {
-            {"out", "pop", "push", "add", "sub", "mul", "div", "sin", "cos", "sqrt", "jmp", "je", "jne", "ja", "jae", "jb", "jbe", "prnt", "cmp"},
-            {OUT,    POP,   PUSH,   ADD,   SUB,   MUL,   DIV,   SIN,   COS,   SQRT,   JMP,   JE,   JNE,   JA,   JAE,   JB,   JBE,   PRNT,   CMP, -1}
+            {"out", "pop", "push", "add", "sub", "mul", "div", "sin", "cos", "sqrt", "jmp", "je", "jne", "ja", "jae", "jb", "jbe", "prnt", "cmp", "scan"},
+            {OUT,    POP,   PUSH,   ADD,   SUB,   MUL,   DIV,   SIN,   COS,   SQRT,   JMP,   JE,   JNE,   JA,   JAE,   JB,   JBE,   PRNT,   CMP, SCAN, -1}
     };
     char* PRIVIOUS_CODE = CreateBuffer(instr);
     char* code = PRIVIOUS_CODE;
@@ -161,6 +161,7 @@ int Assembler(char* instr, char *outstr) {
         case SQRT:
         case PRNT:
         case CMP:
+        case SCAN:
             if(! StrFree(&code)) {
                 fclose(out);
                 free(PRIVIOUS_CODE);
@@ -217,9 +218,6 @@ int Assembler(char* instr, char *outstr) {
     //printf("wrstr|\n");
     //printf("wrstr = %s\n",wrstr);
     fwrite(wrstr, sizeof(char), wrlen, out);
-
-    //for(i = 0; l[i].num != -1; i++)
-    //    free(l[i].name);
     free(PRIVIOUS_CODE); // It was pointer == code (before code become NULL in for)
     fclose(out);
     return 0;

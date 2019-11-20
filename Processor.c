@@ -96,6 +96,7 @@ int FillCommFunc(CommFunc* cf) {
     MakePair(cf, JBE,   jbe,   &i);
     MakePair(cf, PRNT,  prnt,  &i);
     MakePair(cf, CMP,   cmp,  &i);
+    MakePair(cf, SCAN,   scan,  &i);
     MakePair(cf, -1,    out,   &i);
     return 0;
 }
@@ -356,7 +357,7 @@ int jmp(Processor* proc) {
     return 1;
 }
 
-int ja(Processor* proc) {
+int ja(Processor* proc) { //jamp if flag is >
     assert(proc != NULL);
     if(proc->flag < 1) {
         proc->rip += UNION_CHAR_CAP;
@@ -374,7 +375,7 @@ int jae(Processor* proc) {
        return jmp(proc);
 }
 
-int jb(Processor* proc) {
+int jb(Processor* proc) {  //jamp if flag is <
     assert(proc != NULL);
     if(proc->flag > -1) {
            proc->rip += UNION_CHAR_CAP;
@@ -420,7 +421,17 @@ int prnt(Processor* proc) {
     return 1;
 }
 
-int cmp(Processor* proc) {
+int scan(Processor* proc) { //WARNING: use atof, if change type_a could work wrong!
+    assert(proc != NULL);
+    char s[(int)pow(2, UNION_CHAR_CAP) / 10];
+    scanf("%s", s);
+    stk_t arg = atof(s);
+    StackPush(&proc->stk, arg);
+    if(proc->stk.err == ENOTENMEM) return -1;
+    return 1;
+}
+
+int cmp(Processor* proc) { //compare penultimate and (<=> ---  -1 0 1) last numbers in stack
     assert(proc != NULL);
     stk_t arg1 = StackPop(&proc->stk);
     stk_t arg2 = StackPop(&proc->stk);
