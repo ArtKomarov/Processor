@@ -43,6 +43,7 @@ int Assembler(char* instr, char *outstr) {
 
     //FIRST PASS
     char* firstpass;
+    char firreg;
     int scounter = 0;
     for(firstpass = code; firstpass != NULL; firstpass = strchr(firstpass, '\n')) {
         firstpass++;
@@ -52,11 +53,21 @@ int Assembler(char* instr, char *outstr) {
             if(comm == FREELINE) continue;
             scounter++;
             switch(comm) {
-            case POP2:
-            case PUSH2:
-            scounter++;
+            //case POP2:
+            //case PUSH2:
+            //scounter++;
             break;
+            case POP:
+                if(GetReg(&firstpass, &firreg)) {
+                    scounter++;
+                    break;
+                }
+                break;
             case PUSH:
+                if(GetReg(&firstpass, &firreg)) {
+                    scounter++;
+                    break;
+                }
             case JMP:
             case JE:
             case JNE:

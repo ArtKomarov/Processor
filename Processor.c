@@ -129,7 +129,7 @@ int GetCPUArg(Processor* proc, type_a* arg) {
 int GetCPUReg(Processor* proc, int* num) {
     assert(proc != NULL);
     assert(num  != NULL);
-    int RegNum = proc->code[++proc->rip] - '0';
+    int RegNum = proc->code[proc->rip++] - '0';
     if(RegNum < 0 && RegNum >= PROC_NUM_OF_REGS)
         return -1;
     else
@@ -149,7 +149,7 @@ int PrintCommError(int comm, int linenum) {
     if(comm == POP || comm == POP2)
         fprintf(stderr, "%d: Command pop catch error: EUNDERFLOW or invalid register number!\n", linenum);
     else if(comm == PUSH || comm == PUSH2)
-        fprintf(stderr, "%d: Command push catch error: ENOMEM or invalid register number!\n", linenum);
+        fprintf(stderr, "%d: Command push catch error: ENOTENMEM or invalid register number!\n", linenum);
     else {
         switch(comm) {
         case OUT:
@@ -212,7 +212,8 @@ int PrintCommError(int comm, int linenum) {
                     break;
                 }
                 if(c[0] != '\0')
-                    fprintf(stderr, "%d: Command %s catch error: Not enough arguments in stack or not enough memory for push back arguments in stack (because we get them with pop)!\n", linenum, c);
+                    fprintf(stderr, "%d: Command %s catch error: Not enough arguments in stack or not enough memory for push back arguments in the stack (because we get them with pop)!\n", linenum, c);
+                    else if(comm == SCAN) fprintf(stderr, "%d: Command scan catch error: ENOTENMEM - no memory for pushing gained number into the stack!\n", linenum);
                     else fprintf(stderr, "%d: Unknown command used!\n", linenum);
             }
         }
@@ -290,7 +291,8 @@ int add(Processor* proc) {
 int sub(Processor* proc) {
     assert(proc != NULL);
     stk_t arg = StackPop(&proc->stk);
-    arg -= StackPop(&proc->stk);
+    stk_t arg1 = StackPop(&proc->stk);
+    arg = arg1 - arg;
     if(proc->stk.err == EUNDERFLOW) return -1;
     else StackPush(&proc->stk, arg);
     if(proc->stk.err == ENOTENMEM) return -1;
@@ -312,9 +314,9 @@ int _div(Processor* proc) {
     stk_t arg1 = StackPop(&proc->stk);
     stk_t arg2 = StackPop(&proc->stk);
     if(arg2 == 0) return -1;
-    arg1 /= arg2;
+    arg2 /= arg1;
     if(proc->stk.err == EUNDERFLOW) return -1;
-    else StackPush(&proc->stk, arg1);
+    else StackPush(&proc->stk, arg2);
     if(proc->stk.err == ENOTENMEM) return -1;
     return 1;
 }
@@ -322,9 +324,9 @@ int _div(Processor* proc) {
 int _sin(Processor* proc) {
     assert(proc != NULL);
     stk_t arg1 = StackPop(&proc->stk);
-  //  stk_t arg2 = sin(arg1);
+    stk_t arg2 = sin(arg1);
     if(proc->stk.err == EUNDERFLOW) return -1;
-    //else StackPush(&proc->stk, arg2);
+    else StackPush(&proc->stk, arg2);
     if(proc->stk.err == ENOTENMEM) return -1;
     return 1;
 }
@@ -332,9 +334,9 @@ int _sin(Processor* proc) {
 int _cos(Processor* proc) {
     assert(proc != NULL);
     stk_t arg1 = StackPop(&proc->stk);
-    //stk_t arg2 = cos(arg1);
+    stk_t arg2 = cos(arg1);
     if(proc->stk.err == EUNDERFLOW) return -1;
-    //else StackPush(&proc->stk, arg2);
+    else StackPush(&proc->stk, arg2);
     if(proc->stk.err == ENOTENMEM) return -1;
     return 1;
 }
@@ -342,9 +344,9 @@ int _cos(Processor* proc) {
 int _sqrt(Processor* proc) {
     assert(proc != NULL);
     stk_t arg1 = StackPop(&proc->stk);
-    //stk_t arg2 = sqrt(arg1);
+    stk_t arg2 = sqrt(arg1);
     if(proc->stk.err == EUNDERFLOW) return -1;
-    //else StackPush(&proc->stk, arg2);
+    else StackPush(&proc->stk, arg2);
     if(proc->stk.err == ENOTENMEM) return -1;
     return 1;
 }
@@ -386,7 +388,7 @@ int jb(Processor* proc) {  //jamp if flag is <
 
 int jbe(Processor* proc) {
     assert(proc != NULL);
-    if(proc->flag <= 0) {
+    if(proc->flag > 0) {
         proc->rip += UNION_CHAR_CAP;
         return 1;
     }

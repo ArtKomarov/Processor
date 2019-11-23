@@ -1,13 +1,23 @@
-    push 8
-    
-    push  854  
-    jmp gjgk
-    kik:
-    push    9 
-    gjgk:
- scan 
-  %  add
-cmp
-jb kik
-%pop reg1
-prnt
+ scan
+    pop reg0
+    push 1
+    pop reg1
+    fact:
+    push reg0
+    push 1
+    cmp
+    pop
+    jbe result
+    push reg1
+    prnt
+    mul
+    pop reg1
+    push reg0
+    push 1
+    sub
+    pop reg0
+    jmp fact
+    result:
+    push reg1
+    prnt
+    out
