@@ -1,0 +1,19 @@
+scan
+pop reg0
+push 1.0000
+pop reg1
+push reg0
+push 1.0000
+cmp
+pop
+jb 44.0000
+push reg1
+mul
+pop reg1
+push reg0
+push 1.0000
+sub
+pop reg0
+jmp 10.0000
+push reg1
+prnt

@@ -9,7 +9,6 @@
     pop
     jbe result
     push reg1
-    prnt
     mul
     pop reg1
     push reg0

@@ -11,8 +11,12 @@
 //Read from file "filename" and create char* with file contents
 char* CreateBuffer(char* filename){
     assert(filename != NULL);
-    FILE *rf = fopen(filename, "rb");
-    assert(rf != NULL);
+    FILE *rf;
+    if((rf = fopen(filename, "rb")) == NULL) {
+        perror("fopen");
+        return NULL;
+        //assert(rf != NULL);
+    }
     fseek(rf, 0, SEEK_END);
     long int flen = ftell(rf); //get file length in bytes
 

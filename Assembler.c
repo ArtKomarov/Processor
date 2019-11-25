@@ -21,9 +21,11 @@
 int Assembler(char* instr, char *outstr) {
     assert(instr);
     assert(outstr);
-    FILE *out = fopen(outstr, "wb");
-    if(FileCheck(out, outstr) != 0)
+    FILE *out;
+    if((out = fopen(outstr, "wb")) == NULL) {
+        perror("fopen");
         return -1;
+    }
 
     CommArray ComArr = {
             {"out", "pop", "push", "add", "sub", "mul", "div", "sin", "cos", "sqrt", "jmp", "je", "jne", "ja", "jae", "jb", "jbe", "prnt", "cmp", "scan"},
